@@ -1,5 +1,6 @@
 const express = require("express"); //initialixe express app
 const { createTodo } = require("./types");
+const { todo } = require("./db");
 const app = express(); //execute the express function
 const port = 3000; //defining the port value
 
@@ -10,7 +11,7 @@ app.listen(port, () => {
 });
 //a simple console.log to know that express is working fine
 
-app.get("/todo", (req, res) => {
+app.post("/todo", async (req, res) => {
   const createPayLoad = req.body; // take the data from the body fill the data in the createPayload veriable
   const parsedPayload = createTodo.safeParse(createPayLoad); //push that data to the schema using createTodo.safeParse(createPayload)
   if (!parsedPayload.success) {
@@ -18,9 +19,18 @@ app.get("/todo", (req, res) => {
     return;
   }
   //   put the thing in mongo db
+  await todo.create({
+    title: parsedPayload.title,
+    description: parsedPayload.description,
+    completed: false,
+  });
+  res.json({ msg: "todo Created" });
 });
-app.post("/todo", (req, res) => {});
-app.put("/complete", (req, res) => {
+app.get("/todo", async (req, res) => {
+  const todo = await todo.find({});
+  console.log(todo);
+});
+app.put("/complete", async (req, res) => {
   const updatePayload = req.body;
   const parsedPayload = createTodo.safeParse(updatePayload);
   if (!parsedPayload.success) {
@@ -28,4 +38,13 @@ app.put("/complete", (req, res) => {
     return;
     // it works same as above but for updating the payload
   }
+  await todo.update(
+    {
+      _id: req.body.id,
+    },
+    {
+      completed: true,
+    }
+  );
+  res.json({ msg: "todo completed" });
 });
