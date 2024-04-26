@@ -3,9 +3,13 @@ const { createTodo } = require("./types");
 const { todo } = require("./db");
 const app = express(); //execute the express function
 const port = 3000; //defining the port value
-
+const cors = require("cors");
 app.use(express.json()); //using express json format
-
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+); //using cors to send requests from diffrent frontend url to backend url
 app.listen(port, () => {
   console.log(`TODO-Backend listening at http://localhost:${port}`);
 });
@@ -20,15 +24,15 @@ app.post("/todo", async (req, res) => {
   }
   //   put the thing in mongo db
   await todo.create({
-    title: parsedPayload.title,
-    description: parsedPayload.description,
+    title: parsedPayload.data.title,
+    description: parsedPayload.data.description,
     completed: false,
   });
   res.json({ msg: "todo Created" });
 });
 app.get("/todo", async (req, res) => {
-  const todo = await todo.find({});
-  console.log(todo);
+  const todos = await todo.find({});
+  res.json(todos);
 });
 app.put("/complete", async (req, res) => {
   const updatePayload = req.body;
