@@ -1,5 +1,5 @@
 const express = require("express"); //initialixe express app
-const { createTodo } = require("./types");
+const { createTodo, updateTodo } = require("./types");
 const { todo } = require("./db");
 const app = express(); //execute the express function
 const port = 3000; //defining the port value
@@ -36,9 +36,11 @@ app.get("/todo", async (req, res) => {
 });
 app.put("/complete", async (req, res) => {
   const updatePayload = req.body;
-  const parsedPayload = createTodo.safeParse(updatePayload);
+  const parsedPayload = updateTodo.safeParse(updatePayload);
   if (!parsedPayload.success) {
-    res.status(411).json({ message: "you have sent the wrong input" });
+    res.status(411).json({
+      message: "you have sent the wrong input",
+    });
     return;
     // it works same as above but for updating the payload
   }
